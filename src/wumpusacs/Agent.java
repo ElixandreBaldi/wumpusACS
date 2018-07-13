@@ -93,10 +93,10 @@ public class Agent {
         return this.column;
     }   
     
-    public void action() {
+    public boolean action() {
         this.contMoviment++;
-        System.out.println("Movimento: "+contMoviment);                
-        movement();        
+        //System.out.println("Movimento: "+contMoviment);                
+        return movement();        
         //this.printKnown();        
     }               
     
@@ -107,7 +107,7 @@ public class Agent {
     }
         
     
-    public void movement(){  
+    public boolean movement(){  
         double pesoTop = 0, pesoBottom = 0, pesoRight = 0, pesoLeft = 0, pesoTotal = 0;
         double distancia = 1/1;   
         int move = 0;
@@ -146,8 +146,8 @@ public class Agent {
         double randomValue = r.nextDouble()*pesoTotal;
         double acumulador = 0.0;
         
-        System.out.println("peso total: "+pesoTotal);
-        System.out.println("random: "+randomValue);
+        //System.out.println("peso total: "+pesoTotal);
+        //System.out.println("random: "+randomValue);
         
         for(int i = 0; i < pesos.length; i++) {
             acumulador += pesos[i];
@@ -160,35 +160,36 @@ public class Agent {
         else if(move == 2) line++;
         else if(move == 3) column++;
         else if(move == 4) column--;
-        else movementRondom();
+        else {
+            if(!movementRondom()) return false;
+        }
         
         this.path.add(new Cell(line, column, 0));
         
-        
+        return true;
     }        
     
-    public void movementRondom(){    
+    public boolean movementRondom(){    
         int count = 0;
         while(true) {
             int i = random.nextInt(4);
             if(i == 0 && this.moveTop()) {
                 line--;
-                return;
+                return true;
             } else if(i == 1 && this.moveRight()){
                 column++;
-                return;
+                return true;
             } else if(i == 2 && this.moveBottom()){
                 line++;
-                return;
+                return true;
             } else if(i == 3 && this.moveLeft()){
                 column--;
-                return;
+                return true;
             }   
             count++;
             
-            if(count > 20) {
-                System.out.println("Formiga Morta");
-                System.exit(0);
+            if(count > 20) {                
+                return false;
             }
         }                
     }

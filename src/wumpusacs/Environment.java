@@ -79,6 +79,16 @@ public class Environment {
             System.out.println();
         }
     }
+    
+    public void printBoardFeromonio() {
+        for (int i = 0; i < this.n; i++) {
+            for (int j = 0; j < this.n; j++) {
+                double info = this.board[i][j].getFeromonio();                
+                System.out.printf(" %6f",info);
+            }
+            System.out.println();
+        }
+    }
 
     public int generateNumberRandom(int min, int max) {        
         int number = random.nextInt(this.n);

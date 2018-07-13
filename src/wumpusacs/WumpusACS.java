@@ -16,9 +16,9 @@ public class WumpusACS {
 
     public static int n = 15;
     
-    public static int nPopulation = 10;
+    public static int nPopulation = 20;
     
-    public static int nGeration = 10;
+    public static int nGeration = 100;
     
     public static int rateFeromonio = 1;
     
@@ -30,7 +30,7 @@ public class WumpusACS {
     
     private Cell board[][];
 
-    public static Agent a;
+    public static Agent a[];
 
     public static Environment t;
 
@@ -55,67 +55,74 @@ public class WumpusACS {
      */
     public static void main(String[] args) {
         t = new Environment(n);
-        a = new Agent(0, 0, n);
-        while (true) {
-            a.action();            
-            verifyFuture(a.getLine(), a.getColumn());
-            //printMatrix();
-            t.evaporar(rateEvaporacao);
+        a = new Agent[nPopulation];
+        double scoreGlobal = 0;
+        for(int j = 0; j < nGeration; j++) {
+            for(int i = 0; i < nPopulation; i++) {
+                a[i] = new Agent(0, 0, n);
+                while (true) {
+                    if(!a[i].action()) {
+                        System.out.println("Formiga Presa");
+                        break;
+                    }            
+                    if(!(verifyFuture(a[i].getLine(), a[i].getColumn(), i, j))) break;
+                    //printMatrix();                
+                }
+                if(scoreGlobal < a[i].score) scoreGlobal = a[i].score;            
+                t.evaporar(rateEvaporacao);
+                depositar(i, scoreGlobal);
+                System.out.println("");
+                System.out.println("Formiga: "+i);
+                printMatrix();
+                System.out.println("");
+            }   
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
         }
     }   
     
     
-    public static void printMatrix() {
-        /*System.out.println("");        
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                System.out.printf("%4d", buffer_env[i][j]);
-            }
-            System.out.println();
-        }
-        System.out.println("");
-        System.out.println("");       */
-        
-        t.printBoard();
+    public static void printMatrix() {        
+        //t.printBoard();
+        t.printBoardFeromonio();
     }
     
     
-    public static void verifyFuture(int line, int column) {                 
+    public static boolean verifyFuture(int line, int column, int indexAgent, int indexGeration) {                 
         short sensation = t.getSensation(line, column);
         
-        a.setFeromonioLeft(t.getFeromonio(line, column-1));
-        a.setFeromonioRight(t.getFeromonio(line, column+1));
-        a.setFeromonioTop(t.getFeromonio(line-1, column));
-        a.setFeromonioBottom(t.getFeromonio(line+1, column));
+        a[indexAgent].setFeromonioLeft(t.getFeromonio(line, column-1));
+        a[indexAgent].setFeromonioRight(t.getFeromonio(line, column+1));
+        a[indexAgent].setFeromonioTop(t.getFeromonio(line-1, column));
+        a[indexAgent].setFeromonioBottom(t.getFeromonio(line+1, column));
         
         if ((sensation & MASKWUMPUS) != 0 || (sensation & MASKHOLE) != 0) { // morreu
-            System.out.println("You lost");
-            printMatrix();
-            a.setDead();
-            depositar(a.score, a.path);
-            
+            System.out.println("You lost");            
+            a[indexAgent].setDead();
+            return false;
         } else if ((sensation & MASKGOLD) != 0) { // ganhou
             System.out.println("You find a gold! ");            
-            a.setGold();            
+            a[indexAgent].setGold();            
         } else if ((sensation & MASKEXIT) != 0) { // ganhou
-            System.out.println("Congratilations! You Winn! "+a.contMoviment +" movimentos!");
-            printMatrix();
-            a.setExit();
-            depositar(a.score, a.path);         
-        }
-        printMatrix();
+            System.out.println("Congratilations! You Winn! "+a[indexAgent].contMoviment +" movimentos!");            
+            System.out.println("Score: "+a[indexAgent].score);
+            System.out.println("Geration: "+indexGeration);
+            a[indexAgent].setExit();                  
+            return false;
+        }        
+        return true;
     }
     
-    public static void depositar(int scoreLocal, ArrayList<Cell> path){
-        int scoreTotal = 500;
-        double deposito = (scoreLocal / scoreTotal) * rateFeromonio;
+    public static void depositar(int indexAgent, double scoreGlobal){
+        ArrayList<Cell> path = a[indexAgent].path;
+        double scoreLocal = a[indexAgent].score;
+        double deposito = (scoreLocal / scoreGlobal) * rateFeromonio;
         
         for(int i = 0; i < path.size(); i++){
             int line = path.get(i).getI();
-            int column = path.get(i).getJ();
-            
+            int column = path.get(i).getJ();            
             t.deposito(line, column, deposito);
         }
-    }
-    
+    }    
 }
