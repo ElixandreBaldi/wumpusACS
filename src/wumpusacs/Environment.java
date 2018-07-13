@@ -56,15 +56,20 @@ public class Environment {
         this.inicializeBoard();               
     }
     
-    public double getFeromonio(int i, int j) {
+    public double getFeromonio(int i, int j, int lado) { //lado 1 = top, lado 2 = bottom, lado 3 = left, lado 4 = right
         if(i < 0 || j < 0 || i >= n || j>= n) return 0;
-        return this.board[i][j].getFeromonio();
+        if(lado == 1) return this.board[i][j].getFeromonioTop();
+        if(lado == 2) return this.board[i][j].getFeromonioBottom();
+        if(lado == 3) return this.board[i][j].getFeromonioLeft();
+        if(lado == 4) return this.board[i][j].getFeromonioRight();
+        
+        return 0;
     }
 
     public void inicializeBoard() {
         for (int i = 0; i < this.n; i++) {
             for (int j = 0; j < this.n; j++) {                
-                this.board[i][j] = new Cell(i, j, 0);
+                this.board[i][j] = new Cell(i, j);
             }
         }
     }
@@ -80,7 +85,7 @@ public class Environment {
         }
     }
     
-    public void printBoardFeromonio() {
+    /*public void printBoardFeromonio() {
         for (int i = 0; i < this.n; i++) {
             for (int j = 0; j < this.n; j++) {
                 double info = this.board[i][j].getFeromonio();                
@@ -88,7 +93,7 @@ public class Environment {
             }
             System.out.println();
         }
-    }
+    }*/
 
     public int generateNumberRandom(int min, int max) {        
         int number = random.nextInt(this.n);
@@ -169,7 +174,10 @@ public class Environment {
         }
     }
     
-    public void deposito(int i, int j, double deposito) {
-        this.board[i][j].deposito(deposito);     
+    public void deposito(int i, int j, double deposito, int lado) { //lado 1 = top, lado 2 = bottom, lado 3 = left, lado 4 = right
+        if(lado == 1) this.board[i][j].depositoTop(deposito);     
+        if(lado == 2) this.board[i][j].depositoBottom(deposito);     
+        if(lado == 3) this.board[i][j].depositoLeft(deposito);     
+        if(lado == 4) this.board[i][j].depositoRight(deposito);     
     }
 }

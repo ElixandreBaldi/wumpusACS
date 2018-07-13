@@ -13,7 +13,6 @@ import java.util.Random;
 import static wumpusacs.WumpusACS.MASKGOLD;
 import static wumpusacs.WumpusACS.MASKUNKNOWN;
 import static wumpusacs.WumpusACS.alfa;
-import static wumpusacs.WumpusACS.beta;
 import static wumpusacs.WumpusACS.random;
 
 
@@ -56,7 +55,7 @@ public class Agent {
     }
     
     public void inicializeEnvironment() {
-        Cell cell = new Cell(0, 0, 0); //linha, coluna, feromonio que nao vai mudar        
+        Cell cell = new Cell(0, 0); //linha, coluna, feromonio que nao vai mudar        
         this.path.add(cell);
     }
     
@@ -110,38 +109,34 @@ public class Agent {
         
     
     public boolean movement(){  
-        double pesoTop = 0, pesoBottom = 0, pesoRight = 0, pesoLeft = 0, pesoTotal = 0;
-        double distancia = 1/1;   
+        double pesoTop = 0, pesoBottom = 0, pesoRight = 0, pesoLeft = 0, pesoTotal = 0;        
         int move = 0;
         double pesos[] = new double[4];
         for(int i = 0; i < 4; i++) pesos[i] = 0.0;        
         if(moveTop()) {
-            double trs = Math.pow(feromonioTop, alfa);
-            double nrs = Math.pow(distancia, beta);
-            pesoTop = trs*nrs;
+            double trs = Math.pow(feromonioTop, alfa);            
+            pesoTop = trs;
             pesos[0] = pesoTop;
         }
         
         if(moveBottom()) {
-            double trs = Math.pow(feromonioBottom, alfa);
-            double nrs = Math.pow(distancia, beta);
-            pesoBottom = trs*nrs;
+            double trs = Math.pow(feromonioBottom, alfa);            
+            pesoBottom = trs;
             pesos[1] = pesoBottom;
         }
         
-        if(moveRight()) {
-            double trs = Math.pow(feromonioRight, alfa);
-            double nrs = Math.pow(distancia, beta);
-            pesoRight = trs*nrs;
-            pesos[2] = pesoRight;
+        if(moveLeft()) {
+            double trs = Math.pow(feromonioLeft, alfa);            
+            pesoLeft = trs;
+            pesos[2] = pesoLeft;
         }
         
-        if(moveLeft()) {
-            double trs = Math.pow(feromonioLeft, alfa);
-            double nrs = Math.pow(distancia, beta);
-            pesoLeft = trs*nrs;
-            pesos[3] = pesoLeft;
+        if(moveRight()) {
+            double trs = Math.pow(feromonioRight, alfa);            
+            pesoRight = trs;
+            pesos[3] = pesoRight;
         }
+                
         pesoTotal = pesoLeft + pesoRight + pesoBottom + pesoTop;
         Random r = new Random();
         
@@ -160,13 +155,13 @@ public class Agent {
         }                
         if(move == 1) line--;
         else if(move == 2) line++;
-        else if(move == 3) column++;
-        else if(move == 4) column--;
+        else if(move == 3) column--;
+        else if(move == 4) column++;
         else {
             if(!movementRondom()) return false;
         }
-        
-        this.path.add(new Cell(line, column, 0));
+        //lado 1 = top, lado 2 = bottom, lado 3 = left, lado 4 = right
+        this.path.add(new Cell(line, column, move));
         
         return true;
     }        
@@ -212,7 +207,7 @@ public class Agent {
     }
     
     void setExit() {
-        this.score += 10;
+        this.score += 50;
     }
     
     void setDead() {

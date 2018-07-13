@@ -14,19 +14,17 @@ import java.util.Random;
  */
 public class WumpusACS {
 
-    public static int n = 15;
+    public static int n = 100;
     
-    public static int nPopulation = 20;
+    public static int nPopulation = 500;
     
-    public static int nGeration = 100;
+    public static int nGeration = 1000;
     
-    public static int rateFeromonio = 1;
+    public static double rateFeromonio = 1; //máximo 1
     
-    public static int rateEvaporacao = 1;
+    public static double rateEvaporacao = 0.5;
     
-    public static float alfa = 1;
-    
-    public static float beta = 1;
+    public static double alfa = 1.1;        
     
     private Cell board[][];
 
@@ -67,24 +65,19 @@ public class WumpusACS {
                 a[i] = new Agent(0, 0, n);
                 while (true) {
                     if(!a[i].action()) {
-                        System.out.println("Formiga Presa");
                         lost.add(new Lost(j, a[i].score, a[i].countGold, a[i].contMoviment));
                         break;
                     }            
-                    if(!(verifyFuture(a[i].getLine(), a[i].getColumn(), i, j))) break;
-                    //printMatrix();                
+                    if(!(verifyFuture(a[i].getLine(), a[i].getColumn(), i, j))) break;                       
                 }
-                if(scoreGlobal < a[i].score) scoreGlobal = a[i].score;            
-                t.evaporar(rateEvaporacao);
-                depositar(i, scoreGlobal);
-                System.out.println("");
-                System.out.println("Formiga: "+i);
+                if(scoreGlobal < a[i].score) scoreGlobal = a[i].score;                            
+                //System.out.println("");
+                //System.out.println("Formiga: "+i);
                 printMatrix();
-                System.out.println("");
+                //System.out.println("");
             }   
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
+            t.evaporar(rateEvaporacao);
+            for(int i = 0; i < nPopulation; i++) depositar(i, scoreGlobal);            
         }
         
         printWin();
@@ -139,30 +132,32 @@ public class WumpusACS {
     
     public static void printMatrix() {        
         //t.printBoard();
-        t.printBoardFeromonio();
+        //t.printBoardFeromonio();
     }
     
     
     public static boolean verifyFuture(int line, int column, int indexAgent, int indexGeration) {                 
         short sensation = t.getSensation(line, column);
         
-        a[indexAgent].setFeromonioLeft(t.getFeromonio(line, column-1));
-        a[indexAgent].setFeromonioRight(t.getFeromonio(line, column+1));
-        a[indexAgent].setFeromonioTop(t.getFeromonio(line-1, column));
-        a[indexAgent].setFeromonioBottom(t.getFeromonio(line+1, column));
+        
+        //lado 1 = top, lado 2 = bottom, lado 3 = left, lado 4 = right
+        a[indexAgent].setFeromonioLeft(t.getFeromonio(line, column-1, 4));
+        a[indexAgent].setFeromonioRight(t.getFeromonio(line, column+1, 3));
+        a[indexAgent].setFeromonioTop(t.getFeromonio(line-1, column, 2));
+        a[indexAgent].setFeromonioBottom(t.getFeromonio(line+1, column, 1));
         
         if ((sensation & MASKWUMPUS) != 0 || (sensation & MASKHOLE) != 0) { // morreu
-            System.out.println("You lost");            
+            //System.out.println("You lost");            
             a[indexAgent].setDead();
             lost.add(new Lost(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment));
             return false;
         } else if ((sensation & MASKGOLD) != 0) { // ganhou
-            System.out.println("You find a gold! ");            
+            //System.out.println("You find a gold! ");            
             a[indexAgent].setGold();            
         } else if ((sensation & MASKEXIT) != 0) { // ganhou
-            System.out.println("Congratilations! You Winn! "+a[indexAgent].contMoviment +" movimentos!");            
-            System.out.println("Score: "+a[indexAgent].score);
-            System.out.println("Geration: "+indexGeration);
+            //System.out.println("Congratilations! You Winn! "+a[indexAgent].contMoviment +" movimentos!");            
+            //System.out.println("Score: "+a[indexAgent].score);
+            //System.out.println("Geration: "+indexGeration);
             a[indexAgent].setExit();
             win.add(new Win(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment));
             return false;
@@ -174,11 +169,19 @@ public class WumpusACS {
         ArrayList<Cell> path = a[indexAgent].path;
         double scoreLocal = a[indexAgent].score;
         double deposito = (scoreLocal / scoreGlobal) * rateFeromonio;
+                
         
         for(int i = 0; i < path.size(); i++){
             int line = path.get(i).getI();
             int column = path.get(i).getJ();            
-            t.deposito(line, column, deposito);
+            
+            if((path.get(i).getInfo() & MASKGOLD) == MASKGOLD) deposito += deposito * 0.1;
+            else if((path.get(i).getInfo() & MASKEXIT) == MASKEXIT) deposito += deposito * 0.1;            
+            else if((path.get(i).getInfo() & MASKHOLE) == MASKHOLE) deposito -= deposito * 0.1;
+            else if((path.get(i).getInfo() & MASKWUMPUS) == MASKWUMPUS) deposito -= deposito * 0.1;
+            
+            int lado = path.get(i).getLado();
+            t.deposito(line, column, deposito, lado);
         }
     }    
 }
