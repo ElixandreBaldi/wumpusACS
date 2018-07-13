@@ -34,6 +34,8 @@ public class Agent {
     
     public int score;    
     
+    public int countGold;
+    
     private double feromonioTop;
     
     private double feromonioBottom;
@@ -203,6 +205,7 @@ public class Agent {
     }
     
     void setGold() {
+        this.countGold++;
         this.score += 20;
         int size = this.path.size();        
         this.path.get(size-1).setInfo(MASKGOLD);

@@ -33,6 +33,9 @@ public class WumpusACS {
     public static Agent a[];
 
     public static Environment t;
+    
+    public static ArrayList<Win> win;
+    public static ArrayList<Lost> lost;
 
     public static final byte MASKANT = 1;
 
@@ -56,6 +59,8 @@ public class WumpusACS {
     public static void main(String[] args) {
         t = new Environment(n);
         a = new Agent[nPopulation];
+        win = new ArrayList<Win>();
+        lost = new ArrayList<Lost>();
         double scoreGlobal = 0;
         for(int j = 0; j < nGeration; j++) {
             for(int i = 0; i < nPopulation; i++) {
@@ -63,6 +68,7 @@ public class WumpusACS {
                 while (true) {
                     if(!a[i].action()) {
                         System.out.println("Formiga Presa");
+                        lost.add(new Lost(j, a[i].score, a[i].countGold, a[i].contMoviment));
                         break;
                     }            
                     if(!(verifyFuture(a[i].getLine(), a[i].getColumn(), i, j))) break;
@@ -80,8 +86,56 @@ public class WumpusACS {
             System.out.println("");
             System.out.println("");
         }
+        
+        printWin();
+        printBest();
     }   
     
+    public static void printBest() {
+        int indexBest = -1;
+        double score = 0;
+        for(int i = 0; i < win.size(); i++) {
+            if(win.get(i).score > score) {
+                score = win.get(i).score;
+                indexBest = i;
+            }
+        }
+        
+        if(indexBest == -1) {
+            System.out.println("Sem vencedor");
+            printBestLost();
+            return;
+        }        
+        
+        System.out.println("");
+        System.out.println("");
+        System.out.println("Best:");
+        
+        win.get(indexBest).print();
+    }
+    
+    public static void printBestLost() {
+        int indexBest = -1;
+        double score = 0;
+        for(int i = 0; i < lost.size(); i++) {
+            if(lost.get(i).score > score) {
+                score = lost.get(i).score;
+                indexBest = i;
+            }
+        }
+        System.out.println("");
+        System.out.println("");
+        System.out.println("Best:");
+        
+        lost.get(indexBest).print();
+    }
+    
+    public static void printWin() {
+        for(int i = 0; i < win.size(); i++){
+            win.get(i).print();
+            System.out.println("");
+        }
+    }
     
     public static void printMatrix() {        
         //t.printBoard();
@@ -100,6 +154,7 @@ public class WumpusACS {
         if ((sensation & MASKWUMPUS) != 0 || (sensation & MASKHOLE) != 0) { // morreu
             System.out.println("You lost");            
             a[indexAgent].setDead();
+            lost.add(new Lost(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment));
             return false;
         } else if ((sensation & MASKGOLD) != 0) { // ganhou
             System.out.println("You find a gold! ");            
@@ -108,7 +163,8 @@ public class WumpusACS {
             System.out.println("Congratilations! You Winn! "+a[indexAgent].contMoviment +" movimentos!");            
             System.out.println("Score: "+a[indexAgent].score);
             System.out.println("Geration: "+indexGeration);
-            a[indexAgent].setExit();                  
+            a[indexAgent].setExit();
+            win.add(new Win(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment));
             return false;
         }        
         return true;
