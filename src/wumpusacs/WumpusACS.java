@@ -5,6 +5,7 @@
  */
 package wumpusacs;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -18,6 +19,16 @@ public class WumpusACS {
     public static int nPopulation = 10;
     
     public static int nGeration = 10;
+    
+    public static int rateFeromonio = 1;
+    
+    public static int rateEvaporacao = 1;
+    
+    public static float alfa = 1;
+    
+    public static float beta = 1;
+    
+    private Cell board[][];
 
     public static Agent a;
 
@@ -49,8 +60,10 @@ public class WumpusACS {
             a.action();            
             verifyFuture(a.getLine(), a.getColumn());
             //printMatrix();
+            t.evaporar(rateEvaporacao);
         }
     }   
+    
     
     public static void printMatrix() {
         /*System.out.println("");        
@@ -67,13 +80,19 @@ public class WumpusACS {
     }
     
     
-    public static void verifyFuture(int line, int column) {        
+    public static void verifyFuture(int line, int column) {                 
         short sensation = t.getSensation(line, column);
+        
+        a.setFeromonioLeft(t.getFeromonio(line, column-1));
+        a.setFeromonioRight(t.getFeromonio(line, column+1));
+        a.setFeromonioTop(t.getFeromonio(line-1, column));
+        a.setFeromonioBottom(t.getFeromonio(line+1, column));
+        
         if ((sensation & MASKWUMPUS) != 0 || (sensation & MASKHOLE) != 0) { // morreu
             System.out.println("You lost");
             printMatrix();
             a.setDead();
-            System.exit(0);
+            depositar(a.score, a.path);
             
         } else if ((sensation & MASKGOLD) != 0) { // ganhou
             System.out.println("You find a gold! ");            
@@ -82,9 +101,21 @@ public class WumpusACS {
             System.out.println("Congratilations! You Winn! "+a.contMoviment +" movimentos!");
             printMatrix();
             a.setExit();
-            System.exit(0);            
+            depositar(a.score, a.path);         
         }
         printMatrix();
+    }
+    
+    public static void depositar(int scoreLocal, ArrayList<Cell> path){
+        int scoreTotal = 500;
+        double deposito = (scoreLocal / scoreTotal) * rateFeromonio;
+        
+        for(int i = 0; i < path.size(); i++){
+            int line = path.get(i).getI();
+            int column = path.get(i).getJ();
+            
+            t.deposito(line, column, deposito);
+        }
     }
     
 }

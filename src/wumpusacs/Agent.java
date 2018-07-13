@@ -9,8 +9,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import static wumpusacs.WumpusACS.MASKGOLD;
 import static wumpusacs.WumpusACS.MASKUNKNOWN;
+import static wumpusacs.WumpusACS.alfa;
+import static wumpusacs.WumpusACS.beta;
 import static wumpusacs.WumpusACS.random;
 
 
@@ -27,9 +30,17 @@ public class Agent {
     
     private int n;                        
     
-    private ArrayList<Cell> path;
+    public ArrayList<Cell> path;
     
-    private int score;
+    public int score;    
+    
+    private double feromonioTop;
+    
+    private double feromonioBottom;
+    
+    private double feromonioRight;
+    
+    private double feromonioLeft;
     
     Agent(int line, int column, int n) {
         this.contMoviment = 0;                        
@@ -55,42 +66,22 @@ public class Agent {
     }
     
     public boolean moveTop() {        
-        if(line > 0 && !isKnown(line-1,column)){                                    
-            this.line--;
-            this.path.add(new Cell(line, column, 0));     
-            return true;
-        }        
-        
+        if(line > 0 && !isKnown(line-1,column)) return true;        
         return false;
     }
     
     public boolean moveBottom() {        
-        if(line < n-1 && !isKnown(line+1,column)){                        
-            this.line++;
-            this.path.add(new Cell(line, column, 0));     
-            return true;
-        }        
-        
+        if(line < n-1 && !isKnown(line+1,column)) return true;
         return false;
     }
     
     public boolean moveLeft() {
-        if(column > 0 && !isKnown(line,column-1)){                        
-            this.column--;
-            this.path.add(new Cell(line, column, 0));     
-            return true;
-        }        
-        
+        if(column > 0 && !isKnown(line,column-1)) return true;
         return false;
     }
     
     public boolean moveRight() {
-        if(column < n-1 && !isKnown(line,column+1)){                        
-            this.column++;
-            this.path.add(new Cell(line, column, 0));     
-            return true;
-        }        
-        
+        if(column < n-1 && !isKnown(line,column+1)) return true;
         return false;
     }             
     
@@ -105,8 +96,8 @@ public class Agent {
     public void action() {
         this.contMoviment++;
         System.out.println("Movimento: "+contMoviment);                
-        movementRondom();        
-        this.printKnown();        
+        movement();        
+        //this.printKnown();        
     }               
     
     void printKnown() {
@@ -114,21 +105,93 @@ public class Agent {
             path.get(i).print();
         }
     }
+        
     
-    public void movementRondom(){            
+    public void movement(){  
+        double pesoTop = 0, pesoBottom = 0, pesoRight = 0, pesoLeft = 0, pesoTotal = 0;
+        double distancia = 1/1;   
+        int move = 0;
+        double pesos[] = new double[4];
+        for(int i = 0; i < 4; i++) pesos[i] = 0.0;        
+        if(moveTop()) {
+            double trs = Math.pow(feromonioTop, alfa);
+            double nrs = Math.pow(distancia, beta);
+            pesoTop = trs*nrs;
+            pesos[0] = pesoTop;
+        }
+        
+        if(moveBottom()) {
+            double trs = Math.pow(feromonioBottom, alfa);
+            double nrs = Math.pow(distancia, beta);
+            pesoBottom = trs*nrs;
+            pesos[1] = pesoBottom;
+        }
+        
+        if(moveRight()) {
+            double trs = Math.pow(feromonioRight, alfa);
+            double nrs = Math.pow(distancia, beta);
+            pesoRight = trs*nrs;
+            pesos[2] = pesoRight;
+        }
+        
+        if(moveLeft()) {
+            double trs = Math.pow(feromonioLeft, alfa);
+            double nrs = Math.pow(distancia, beta);
+            pesoLeft = trs*nrs;
+            pesos[3] = pesoLeft;
+        }
+        pesoTotal = pesoLeft + pesoRight + pesoBottom + pesoTop;
+        Random r = new Random();
+        
+        double randomValue = r.nextDouble()*pesoTotal;
+        double acumulador = 0.0;
+        
+        System.out.println("peso total: "+pesoTotal);
+        System.out.println("random: "+randomValue);
+        
+        for(int i = 0; i < pesos.length; i++) {
+            acumulador += pesos[i];
+            if(randomValue < acumulador) {
+                move = i + 1;
+                break;
+            }
+        }                
+        if(move == 1) line--;
+        else if(move == 2) line++;
+        else if(move == 3) column++;
+        else if(move == 4) column--;
+        else movementRondom();
+        
+        this.path.add(new Cell(line, column, 0));
+        
+        
+    }        
+    
+    public void movementRondom(){    
+        int count = 0;
         while(true) {
             int i = random.nextInt(4);
             if(i == 0 && this.moveTop()) {
+                line--;
                 return;
             } else if(i == 1 && this.moveRight()){
+                column++;
                 return;
             } else if(i == 2 && this.moveBottom()){
+                line++;
                 return;
             } else if(i == 3 && this.moveLeft()){
+                column--;
                 return;
-            } else System.out.println("morte");            
+            }   
+            count++;
+            
+            if(count > 20) {
+                System.out.println("Formiga Morta");
+                System.exit(0);
+            }
         }                
-    }        
+    }
     
     public int randomMovement(boolean positions[]) {        
         while(true) {
@@ -150,5 +213,21 @@ public class Agent {
     
     void setDead() {
         this.score -= 50;
+    }
+    
+    void setFeromonioTop(double f) {
+        this.feromonioTop = f;
+    }
+    
+    void setFeromonioBottom(double f) {        
+        this.feromonioBottom = f;
+    }
+    
+    void setFeromonioRight(double f) {
+        this.feromonioRight = f;
+    }
+    
+    void setFeromonioLeft(double f) {
+        this.feromonioLeft = f;
     }
 }

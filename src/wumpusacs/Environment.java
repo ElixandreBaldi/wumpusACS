@@ -11,15 +11,14 @@ import static wumpusacs.WumpusACS.MASKEXIT;
 import static wumpusacs.WumpusACS.MASKGOLD;
 import static wumpusacs.WumpusACS.MASKHOLE;
 import static wumpusacs.WumpusACS.MASKWUMPUS;
+import static wumpusacs.WumpusACS.n;
 import static wumpusacs.WumpusACS.random;
 
 /**
  *
  * @author administrador
  */
-public class Environment {
-
-    private Cell board[][];   
+public class Environment {      
 
     private Hole holes[];    
 
@@ -33,7 +32,9 @@ public class Environment {
 
     private int numberGolds;
 
-    private int n;      
+    private int n;   
+    
+    private Cell[][] board;
 
     public Environment(int n) {
         this.init(n);
@@ -50,11 +51,15 @@ public class Environment {
     public void init(int n) {
         this.n = n;
         
-        this.board = new Cell[n][n];                
+        board = new Cell[n][n];                
         
         this.inicializeBoard();               
     }
     
+    public double getFeromonio(int i, int j) {
+        if(i < 0 || j < 0 || i >= n || j>= n) return 0;
+        return this.board[i][j].getFeromonio();
+    }
 
     public void inicializeBoard() {
         for (int i = 0; i < this.n; i++) {
@@ -144,5 +149,17 @@ public class Environment {
     public byte getSensation(int i, int j){
         this.board[i][j].setInfo((byte)64);
         return this.board[i][j].getInfo();
+    }
+    
+    public void evaporar(double taxa) {
+        for(int i = 0; i < this.n; i++) {
+            for(int j = 0; j < this.n; j++) {
+                this.board[i][j].evaporar(taxa);
+            }
+        }
+    }
+    
+    public void deposito(int i, int j, double deposito) {
+        this.board[i][j].deposito(deposito);     
     }
 }

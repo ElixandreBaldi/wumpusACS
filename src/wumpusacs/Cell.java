@@ -13,13 +13,13 @@ public class Cell {
     private int i;
     private int j;
     private byte info;
-    private float feromonio;
+    private double feromonio;
     
-    Cell(int i, int j, float feromonio) {
+    Cell(int i, int j, double feromonio) {
         this.i = i;
         this.j = j;
         this.feromonio = feromonio;
-        this.info = (byte) 0;
+        this.info = (byte) 0;        
     }
     
     public void setInfo(byte mask) {
@@ -42,11 +42,11 @@ public class Cell {
         this.j = j;
     }    
 
-    public float getFeromonio() {
+    public double getFeromonio() {
         return feromonio;
     }
 
-    public void setFeromonio(float feromonio) {
+    public void setFeromonio(double feromonio) {
         this.feromonio = feromonio;
     }        
     
@@ -64,5 +64,13 @@ public class Cell {
     
     void print() {
         System.out.println("["+i+", "+j+"]");
+    }
+    
+    void evaporar(double taxa) {
+        this.feromonio *= taxa;
+    }
+    
+    void deposito(double deposito) {
+        this.feromonio += deposito;
     }
 }
