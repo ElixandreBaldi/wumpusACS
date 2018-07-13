@@ -7,6 +7,9 @@ package wumpusacs;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -14,19 +17,19 @@ import java.util.Random;
  */
 public class WumpusACS {
 
-    public static int n = 100;
+    public static int n;
     
-    public static int nPopulation = 500;
+    public static int nPopulation;
     
-    public static int nGeration = 1000;
+    public static int nGeration;
     
-    public static double rateFeromonio = 1; //máximo 1
+    public static double rateFeromonio; //máximo 1
     
-    public static double rateEvaporacao = 0.5;
+    public static double rateEvaporacao;
     
-    public static double alfa = 1.1;        
+    public static double alfa;     
     
-    private Cell board[][];
+    public static double rateDepositoGoldExitHoleWumpus;
 
     public static Agent a[];
 
@@ -54,7 +57,31 @@ public class WumpusACS {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    
+    public static void getData() throws InterruptedException {
+        CaixaDeTexto texfield = new CaixaDeTexto();		  
+        texfield.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        texfield.setSize(400, 500);
+        texfield.setVisible(true); 
+        boolean flag = texfield.stop;
+        while(texfield.stop) {            
+            TimeUnit.SECONDS.sleep(1);
+        }
+        
+        n = texfield.getN();    
+        nPopulation = texfield.getnPopulation();
+        nGeration = texfield.getnGeration();
+        rateFeromonio = texfield.getRateFeromonio(); //máximo 1
+        rateEvaporacao = texfield.getRateEvaporacao();
+        alfa = texfield.getAlfa();     
+        rateDepositoGoldExitHoleWumpus = texfield.getRateDepositoGoldExitHoleWumpus();
+    }
+    
+    public static void main(String[] args) throws InterruptedException {
+        getData();
+              
+        
+        
         t = new Environment(n);
         a = new Agent[nPopulation];
         win = new ArrayList<Win>();
@@ -73,13 +100,13 @@ public class WumpusACS {
                 if(scoreGlobal < a[i].score) scoreGlobal = a[i].score;                            
                 //System.out.println("");
                 //System.out.println("Formiga: "+i);
-                printMatrix();
+                //printMatrix();
                 //System.out.println("");
             }   
             t.evaporar(rateEvaporacao);
             for(int i = 0; i < nPopulation; i++) depositar(i, scoreGlobal);            
         }
-        
+        printMatrix();
         printWin();
         printBest();
     }   
@@ -131,7 +158,7 @@ public class WumpusACS {
     }
     
     public static void printMatrix() {        
-        //t.printBoard();
+        t.printBoard();
         //t.printBoardFeromonio();
     }
     
@@ -175,10 +202,10 @@ public class WumpusACS {
             int line = path.get(i).getI();
             int column = path.get(i).getJ();            
             
-            if((path.get(i).getInfo() & MASKGOLD) == MASKGOLD) deposito += deposito * 0.1;
-            else if((path.get(i).getInfo() & MASKEXIT) == MASKEXIT) deposito += deposito * 0.1;            
-            else if((path.get(i).getInfo() & MASKHOLE) == MASKHOLE) deposito -= deposito * 0.1;
-            else if((path.get(i).getInfo() & MASKWUMPUS) == MASKWUMPUS) deposito -= deposito * 0.1;
+            if((path.get(i).getInfo() & MASKGOLD) == MASKGOLD) deposito += deposito * rateDepositoGoldExitHoleWumpus;
+            else if((path.get(i).getInfo() & MASKEXIT) == MASKEXIT) deposito += deposito * rateDepositoGoldExitHoleWumpus;            
+            else if((path.get(i).getInfo() & MASKHOLE) == MASKHOLE) deposito -= deposito * rateDepositoGoldExitHoleWumpus;
+            else if((path.get(i).getInfo() & MASKWUMPUS) == MASKWUMPUS) deposito -= deposito * rateDepositoGoldExitHoleWumpus;
             
             int lado = path.get(i).getLado();
             t.deposito(line, column, deposito, lado);
