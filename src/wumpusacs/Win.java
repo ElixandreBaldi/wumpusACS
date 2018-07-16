@@ -5,6 +5,8 @@
  */
 package wumpusacs;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author elixandre
@@ -14,12 +16,14 @@ public class Win {
     double score;
     int qtdGold;
     int qtdMovimentos;
+    ArrayList <Cell> path;
     
-    public Win(int g, double s, int q, int m) {
+    public Win(int g, double s, int q, int m, ArrayList<Cell> p) {
         this.geration = g;
         this.score = s;
         this.qtdGold = q;
         this.qtdMovimentos = m;
+        this.path = p;
     }
     
     public void print() {

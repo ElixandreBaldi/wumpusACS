@@ -109,9 +109,9 @@ public class CaixaDeTexto extends JFrame{
         padrao.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evento){
                 if(evento.getSource() == padrao){
-                    n = 50;    
-                    nPopulation = 20;
-                    nGeration = 1000;
+                    n = 20;    
+                    nPopulation = 5;
+                    nGeration = 300;
                     rateFeromonio = 1; //máximo 1
                     rateEvaporacao = 0.02;
                     alfa = 1.1;     

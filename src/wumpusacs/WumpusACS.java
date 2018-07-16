@@ -92,7 +92,7 @@ public class WumpusACS {
                 a[i] = new Agent(0, 0, n);
                 while (true) {
                     if(!a[i].action()) {
-                        lost.add(new Lost(j, a[i].score, a[i].countGold, a[i].contMoviment));
+                        lost.add(new Lost(j, a[i].score, a[i].countGold, a[i].contMoviment, a[i].path));
                         break;
                     }            
                     if(!(verifyFuture(a[i].getLine(), a[i].getColumn(), i, j))) break;                       
@@ -106,9 +106,10 @@ public class WumpusACS {
             t.evaporar(rateEvaporacao);
             for(int i = 0; i < nPopulation; i++) depositar(i, scoreGlobal);            
         }
-        printMatrix();
         printWin();
         printBest();
+        printMatrix();
+        
     }   
     
     public static void printBest() {
@@ -132,6 +133,8 @@ public class WumpusACS {
         System.out.println("Best:");
         
         win.get(indexBest).print();
+        
+        t.refrashMatrixPath(win.get(indexBest).path);
     }
     
     public static void printBestLost() {
@@ -148,6 +151,7 @@ public class WumpusACS {
         System.out.println("Best:");
         
         lost.get(indexBest).print();
+        t.refrashMatrixPath(lost.get(indexBest).path);
     }
     
     public static void printWin() {
@@ -157,7 +161,8 @@ public class WumpusACS {
         }
     }
     
-    public static void printMatrix() {        
+    public static void printMatrix() { 
+        
         t.printBoard();
         //t.printBoardFeromonio();
     }
@@ -176,7 +181,7 @@ public class WumpusACS {
         if ((sensation & MASKWUMPUS) != 0 || (sensation & MASKHOLE) != 0) { // morreu
             //System.out.println("You lost");            
             a[indexAgent].setDead();
-            lost.add(new Lost(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment));
+            lost.add(new Lost(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment, a[indexAgent].path));
             return false;
         } else if ((sensation & MASKGOLD) != 0) { // ganhou
             //System.out.println("You find a gold! ");            
@@ -186,7 +191,7 @@ public class WumpusACS {
             //System.out.println("Score: "+a[indexAgent].score);
             //System.out.println("Geration: "+indexGeration);
             a[indexAgent].setExit();
-            win.add(new Win(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment));
+            win.add(new Win(indexGeration, a[indexAgent].score, a[indexAgent].countGold, a[indexAgent].contMoviment, a[indexAgent].path));
             return false;
         }        
         return true;

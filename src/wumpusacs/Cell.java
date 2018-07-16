@@ -17,6 +17,7 @@ public class Cell {
     private double feromonioBottom;
     private double feromonioLeft;
     private double feromonioRight;
+    int print;
     
     private int lado; //lado 1 = top, lado 2 = bottom, lado 3 = left, lado 4 = right Apenas para o agente
     
@@ -49,6 +50,13 @@ public class Cell {
         this.feromonioRight = 0.0;
         this.info = (byte) 0;  
         this.lado = lado;
+    }
+    
+    Cell(int i, int j, int print, boolean t) {
+        this.i = i;
+        this.j = j;
+        this.info = (byte) 128;
+        this.print = print;
     }
 
     public int getLado() {

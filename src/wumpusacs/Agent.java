@@ -143,16 +143,14 @@ public class Agent {
         double randomValue = r.nextDouble()*pesoTotal;
         double acumulador = 0.0;
         
-        //System.out.println("peso total: "+pesoTotal);
-        //System.out.println("random: "+randomValue);
-        
         for(int i = 0; i < pesos.length; i++) {
             acumulador += pesos[i];
             if(randomValue < acumulador) {
                 move = i + 1;
                 break;
             }
-        }                
+        }               
+ 
         if(move == 1) line--;
         else if(move == 2) line++;
         else if(move == 3) column--;

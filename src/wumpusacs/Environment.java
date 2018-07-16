@@ -5,6 +5,7 @@
  */
 package wumpusacs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import static wumpusacs.WumpusACS.MASKEXIT;
@@ -77,9 +78,9 @@ public class Environment {
     public void printBoard() {
         for (int i = 0; i < this.n; i++) {
             for (int j = 0; j < this.n; j++) {
-                byte info = this.board[i][j].getInfo();                
-                if((info & 64) == 64) info = (byte) (info & 64);
-                System.out.printf("%4d",info);
+                byte info = this.board[i][j].getInfo(); 
+                if((info & 128) == 128) System.out.printf("%4d",this.board[i][j].print);
+                else System.out.printf("%4d",info);
             }
             System.out.println();
         }
@@ -179,5 +180,13 @@ public class Environment {
         if(lado == 2) this.board[i][j].depositoBottom(deposito);     
         if(lado == 3) this.board[i][j].depositoLeft(deposito);     
         if(lado == 4) this.board[i][j].depositoRight(deposito);     
+    }
+    
+    public void refrashMatrixPath(ArrayList<Cell> p) {
+        for(int i = 0; i < p.size(); i++) {
+            int l = p.get(i).getI();
+            int c = p.get(i).getJ();                        
+            this.board[l][c] = new Cell(l, c, i, true);
+        }
     }
 }
