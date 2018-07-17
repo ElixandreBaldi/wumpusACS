@@ -31,5 +31,6 @@ public class Lost {
         System.out.println("Score: "+score);
         System.out.println("qtdGold: "+qtdGold);
         System.out.println("qtdMovimentos: "+qtdMovimentos);
+        System.out.println("Sem vencedores");
     }
 }

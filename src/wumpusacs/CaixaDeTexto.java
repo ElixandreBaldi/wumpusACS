@@ -112,10 +112,10 @@ public class CaixaDeTexto extends JFrame{
                     n = 20;    
                     nPopulation = 5;
                     nGeration = 300;
-                    rateFeromonio = 1; //máximo 1
-                    rateEvaporacao = 0.02;
-                    alfa = 1.1;     
-                    rateDepositoGoldExitHoleWumpus = 0.5;
+                    rateFeromonio = 0.5; //máximo 1
+                    rateEvaporacao = 0.4;
+                    alfa = 1.7;     
+                    rateDepositoGoldExitHoleWumpus = 1.1;
                     
                     stop = false;
                 }

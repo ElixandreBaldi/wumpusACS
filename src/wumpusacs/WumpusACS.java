@@ -79,36 +79,34 @@ public class WumpusACS {
     
     public static void main(String[] args) throws InterruptedException {
         getData();
-              
-        for(int r = 0; r < 10; r++) {        
-            t = new Environment(n);
-            a = new Agent[nPopulation];
-            win = new ArrayList<Win>();
-            lost = new ArrayList<Lost>();
-            double scoreGlobal = 0;
-            for(int j = 0; j < nGeration; j++) {
-                for(int i = 0; i < nPopulation; i++) {
-                    a[i] = new Agent(0, 0, n);
-                    while (true) {
-                        if(!a[i].action()) {
-                            lost.add(new Lost(j, a[i].score, a[i].countGold, a[i].contMoviment, a[i].path));
-                            break;
-                        }            
-                        if(!(verifyFuture(a[i].getLine(), a[i].getColumn(), i, j))) break;                       
-                    }
-                    if(scoreGlobal < a[i].score) scoreGlobal = a[i].score;                            
-                    //System.out.println("");
-                    //System.out.println("Formiga: "+i);
-                    //printMatrix();
-                    //System.out.println("");
-                }   
-                t.evaporar(rateEvaporacao);
-                for(int i = 0; i < nPopulation; i++) depositar(i, scoreGlobal);            
-            }
-            //printWin();
-            printBest();
-            //printMatrix();
-        }        
+                           
+        t = new Environment(n);
+        a = new Agent[nPopulation];
+        win = new ArrayList<Win>();
+        lost = new ArrayList<Lost>();
+        double scoreGlobal = 0;
+        for(int j = 0; j < nGeration; j++) {
+            for(int i = 0; i < nPopulation; i++) {
+                a[i] = new Agent(0, 0, n);
+                while (true) {
+                    if(!a[i].action()) {
+                        lost.add(new Lost(j, a[i].score, a[i].countGold, a[i].contMoviment, a[i].path));
+                        break;
+                    }            
+                    if(!(verifyFuture(a[i].getLine(), a[i].getColumn(), i, j))) break;                       
+                }
+                if(scoreGlobal < a[i].score) scoreGlobal = a[i].score;                            
+                //System.out.println("");
+                //System.out.println("Formiga: "+i);
+                //printMatrix();
+                //System.out.println("");
+            }   
+            t.evaporar(rateEvaporacao);
+            for(int i = 0; i < nPopulation; i++) depositar(i, scoreGlobal);            
+        }
+        printWin();
+        printBest();
+        printMatrix();        
     }   
     
     public static void printBest() {
@@ -122,14 +120,10 @@ public class WumpusACS {
         }
         
         if(indexBest == -1) {
-            System.out.println("Sem vencedor");
+            //System.out.println("Sem vencedor");
             printBestLost();
             return;
-        }        
-        
-        System.out.println("");
-        System.out.println("");
-        System.out.println("Best:");
+        }                        
         
         win.get(indexBest).print();
         
@@ -145,9 +139,9 @@ public class WumpusACS {
                 indexBest = i;
             }
         }
+        /*System.out.println("");
         System.out.println("");
-        System.out.println("");
-        System.out.println("Best:");
+        System.out.println("Best:");*/
         
         lost.get(indexBest).print();
         t.refrashMatrixPath(lost.get(indexBest).path);
